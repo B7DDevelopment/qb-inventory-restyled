@@ -1,5 +1,3 @@
---#region Variables
-
 local QBCore = exports['qb-core']:GetCoreObject()
 local PlayerData = QBCore.Functions.GetPlayerData()
 local inInventory = false
@@ -25,10 +23,6 @@ RegisterNetEvent("qb-inventory:client:showBlur", function()
     Wait(50)
     showBlur = not showBlur
 end)
-
---#endregion Variables
-
---#region Functions
 
 RegisterNUICallback("requestPlayerInfo", function(_, cb)
     local QBCore = exports['qb-core']:GetCoreObject()
@@ -74,13 +68,6 @@ RegisterNUICallback("requestPlayerInfo", function(_, cb)
     })
 end)
 
-
-
-
----Checks if you have an item or not
----@param items string | string[] | table<string, number> The items to check, either a string, array of strings or a key-value table of a string and number with the string representing the name of the item and the number representing the amount
----@param amount? number The amount of the item to check for, this will only have effect when items is a string or an array of strings
----@return boolean success Returns true if the player has the item
 local function HasItem(items, amount)
     local isTable = type(items) == 'table'
     local isArray = isTable and table.type(items) == 'array' or false
@@ -103,7 +90,7 @@ local function HasItem(items, amount)
             if count == totalItems then
                 return true
             end
-        else -- Single item as string
+        else
             if itemData and itemData.name == items and (not amount or (itemData and amount and itemData.amount >= amount)) then
                 return true
             end
@@ -114,8 +101,6 @@ end
 
 exports("HasItem", HasItem)
 
----Gets the closest vending machine object to the client
----@return integer closestVendingMachine
 local function GetClosestVending()
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
@@ -131,7 +116,6 @@ local function GetClosestVending()
     return object
 end
 
----Opens the vending machine shop
 local function OpenVending()
     local ShopItems = {}
     ShopItems.label = "Vending Machine"
@@ -148,11 +132,6 @@ local function OpenVending2()
     TriggerServerEvent("inventory:server:OpenInventory", "shop", "Vendingshop_"..math.random(1, 99), ShopItems)
 end
 
----Draws 3d text in the world on the given position
----@param x number The x coord of the text to draw
----@param y number The y coord of the text to draw
----@param z number The z coord of the text to draw
----@param text string The text to display
 local function DrawText3Ds(x, y, z, text)
     SetTextScale(0.35, 0.35)
     SetTextFont(4)
@@ -168,8 +147,6 @@ local function DrawText3Ds(x, y, z, text)
     ClearDrawOrigin()
 end
 
----Load an animation dictionary before playing an animation from it
----@param dict string Animation dictionary to load
 local function LoadAnimDict(dict)
     if HasAnimDictLoaded(dict) then return end
 
@@ -179,9 +156,6 @@ local function LoadAnimDict(dict)
     end
 end
 
----Returns a formatted attachments table from item data
----@param itemdata table Data of an item
----@return table attachments
 local function FormatWeaponAttachments(itemdata)
     local attachments = {}
     itemdata.name = itemdata.name:upper()
@@ -198,14 +172,10 @@ local function FormatWeaponAttachments(itemdata)
     return attachments
 end
 
----Checks if the vehicle's engine is at the back or not
----@param vehModel integer The model hash of the vehicle
----@return boolean isBackEngine
 local function IsBackEngine(vehModel)
     return BackEngineVehicles[vehModel]
 end
 
----Opens the trunk of the closest vehicle
 local function OpenTrunk()
     local vehicle = QBCore.Functions.GetClosestVehicle()
     LoadAnimDict("amb@prop_human_bum_bin@idle_b")
@@ -217,7 +187,6 @@ local function OpenTrunk()
     end
 end
 
----Closes the trunk of the closest vehicle
 local function CloseTrunk()
     local vehicle = QBCore.Functions.GetClosestVehicle()
     LoadAnimDict("amb@prop_human_bum_bin@idle_b")
@@ -229,19 +198,16 @@ local function CloseTrunk()
     end
 end
 
----Closes the inventory NUI
 local function closeInventory()
     SendNUIMessage({
         action = "close",
     })
 end
 
--- Tab key listener to close inventory while NUI has focus
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
         if inInventory then
-            -- Control 37 = INPUT_SELECT_WEAPON (Tab key)
             DisableControlAction(0, 37, true)
             if IsDisabledControlJustReleased(0, 37) then
                 closeInventory()
@@ -252,8 +218,6 @@ Citizen.CreateThread(function()
     end
 end)
 
----Toggles the hotbar of the inventory
----@param toggle boolean If this is true, the hotbar will open
 local function ToggleHotbar(toggle)
     local HotbarItems = {
         [1] = PlayerData.items[1],
@@ -278,7 +242,6 @@ local function ToggleHotbar(toggle)
     end
 end
 
----Plays the opening animation of the inventory
 local function openAnim()
     if IsPedInAnyVehicle(PlayerPedId(), false) then return end
     local ped = PlayerPedId()
@@ -286,7 +249,6 @@ local function openAnim()
     TaskPlayAnim(ped, 'anim@heists@ornate_bank@grab_cash', 'intro', 8.0, 8.0, 1000, 49, 0, false, false, false)
 end
 
----Plays the closing animation of the inventory
 local function closeAnim()
     if IsPedInAnyVehicle(PlayerPedId(), false) then return end
     local ped = PlayerPedId()
@@ -296,7 +258,6 @@ local function closeAnim()
     ClearPedTasks(ped)
 end
 
----Setup item info for items from Config.CraftingItems
 local function ItemsToItemInfo()
 	local itemInfos = {
 		[1] = {costs = QBCore.Shared.Items["metalscrap"]["label"] .. ": 22x, " ..QBCore.Shared.Items["plastic"]["label"] .. ": 32x."},
@@ -336,7 +297,6 @@ local function ItemsToItemInfo()
 	Config.CraftingItems = items
 end
 
----Setup item info for items from Config.AttachmentCrafting["items"]
 local function SetupAttachmentItemsInfo()
 	local itemInfos = {
 		[1] = {costs = QBCore.Shared.Items["metalscrap"]["label"] .. ": 140x, " .. QBCore.Shared.Items["steel"]["label"] .. ": 250x, " .. QBCore.Shared.Items["rubber"]["label"] .. ": 60x"},
@@ -371,8 +331,6 @@ local function SetupAttachmentItemsInfo()
 	Config.AttachmentCrafting["items"] = items
 end
 
----Runs ItemsToItemInfo() and checks if the client has enough reputation to support the threshold, otherwise the items is not available to craft for the client
----@return table items
 local function GetThresholdItems()
 	ItemsToItemInfo()
 	local items = {}
@@ -384,8 +342,6 @@ local function GetThresholdItems()
 	return items
 end
 
----Runs SetupAttachmentItemsInfo() and checks if the client has enough reputation to support the threshold, otherwise the items is not available to craft for the client
----@return table items
 local function GetAttachmentThresholdItems()
 	SetupAttachmentItemsInfo()
 	local items = {}
@@ -397,8 +353,6 @@ local function GetAttachmentThresholdItems()
 	return items
 end
 
----Removes drops in the area of the client
----@param index integer The drop id to remove
 local function RemoveNearbyDrop(index)
     if not DropsNear[index] then return end
 
@@ -415,15 +369,12 @@ local function RemoveNearbyDrop(index)
     Drops[index].isDropShowing = nil
 end
 
----Removes all drops in the area of the client
 local function RemoveAllNearbyDrops()
     for k in pairs(DropsNear) do
         RemoveNearbyDrop(k)
     end
 end
 
----Creates a new item drop object on the ground
----@param index integer The drop id to save the object in
 local function CreateItemDrop(index)
     local dropItem = CreateObject(Config.ItemDropObject, DropsNear[index].coords.x, DropsNear[index].coords.y, DropsNear[index].coords.z, false, false, false)
     DropsNear[index].object = dropItem
@@ -446,22 +397,14 @@ local function CreateItemDrop(index)
 	end
 end
 
---#endregion Functions
-
---#region Events
-
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     LocalPlayer.state:set("inv_busy", false, true)
     PlayerData = QBCore.Functions.GetPlayerData()
-    -- QBCore.Functions.TriggerCallback("inventory:server:GetCurrentDrops", function(theDrops)
-	-- 	Drops = theDrops
-    -- end)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     LocalPlayer.state:set("inv_busy", true, true)
     PlayerData = {}
-    -- RemoveAllNearbyDrops()
 end)
 
 RegisterNetEvent('QBCore:Client:UpdateObject', function()
@@ -545,12 +488,12 @@ end)
 RegisterNetEvent('inventory:client:OpenInventory', function(PlayerAmmo, inventory, other)
     if not IsEntityDead(PlayerPedId()) then
         if Config.Progressbar.Enable then
-            QBCore.Functions.Progressbar('open_inventory', 'Opening Inventory...', math.random(Config.Progressbar.minT, Config.Progressbar.maxT), false, true, { -- Name | Label | Time | useWhileDead | canCancel
+            QBCore.Functions.Progressbar('open_inventory', 'Opening Inventory...', math.random(Config.Progressbar.minT, Config.Progressbar.maxT), false, true,
                 disableMovement = false,
                 disableCarMovement = false,
                 disableMouse = false,
                 disableCombat = false,
-            }, {}, {}, {}, function() -- Play When Done
+            }, {}, {}, {}, function()
                 ToggleHotbar(false)
                 if showBlur == true then
                     TriggerScreenblurFadeIn(5000)
@@ -606,13 +549,6 @@ RegisterNetEvent('inventory:client:OpenInventory', function(PlayerAmmo, inventor
 end)
 
 RegisterNetEvent('inventory:client:UpdatePlayerInventory', function(isError)
-    -- SendNUIMessage({
-    --     action = "update",
-    --     inventory = PlayerData.items,
-    --     maxweight = Config.MaxInventoryWeight,
-    --     slots = Config.MaxInventorySlots,
-    --     error = isError,
-    -- })
 end)
 
 RegisterNetEvent('inventory:client:CraftItems', function(itemName, itemCosts, amount, toSlot, points)
@@ -630,12 +566,12 @@ RegisterNetEvent('inventory:client:CraftItems', function(itemName, itemCosts, am
 	    animDict = "mini@repair",
 	    anim = "fixing_a_player",
 	    flags = 16,
-	}, {}, {}, function() -- Done
+	}, {}, {}, function()
 	    StopAnimTask(ped, "mini@repair", "fixing_a_player", 1.0)
             TriggerServerEvent("inventory:server:CraftItems", itemName, itemCosts, amount, toSlot, points)
             TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items[itemName], 'add')
             isCrafting = false
-	end, function() -- Cancel
+	end, function() 
 	    StopAnimTask(ped, "mini@repair", "fixing_a_player", 1.0)
             QBCore.Functions.Notify(Lang:t("notify.failed"), "error")
             isCrafting = false
@@ -700,14 +636,13 @@ RegisterNetEvent('inventory:client:UseWeapon', function(weaponData, shootbool)
     local weaponName = tostring(weaponData.name)
     local weaponHash = joaat(weaponData.name)
     if currentWeapon == weaponName then
-        -- Holstering weapon - trigger draw animation (holster)
         TriggerEvent('weapons:client:DrawWeapon', nil)
         SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
         RemoveAllPedWeapons(ped, true)
         TriggerEvent('weapons:client:SetCurrentWeapon', nil, shootbool)
         currentWeapon = nil
     elseif weaponName == "weapon_stickybomb" or weaponName == "weapon_pipebomb" or weaponName == "weapon_smokegrenade" or weaponName == "weapon_flare" or weaponName == "weapon_proxmine" or weaponName == "weapon_ball"  or weaponName == "weapon_molotov" or weaponName == "weapon_grenade" or weaponName == "weapon_bzgas" then
-        -- Throwables
+			
         TriggerEvent('weapons:client:DrawWeapon', weaponName)
         GiveWeaponToPed(ped, weaponHash, 1, false, false)
         SetPedAmmo(ped, weaponHash, 1)
@@ -723,7 +658,6 @@ RegisterNetEvent('inventory:client:UseWeapon', function(weaponData, shootbool)
         TriggerEvent('weapons:client:SetCurrentWeapon', weaponData, shootbool)
         currentWeapon = weaponName
     else
-        -- Regular weapons - trigger draw animation
         TriggerEvent('weapons:client:DrawWeapon', weaponName)
         TriggerEvent('weapons:client:SetCurrentWeapon', weaponData, shootbool)
         local ammo = tonumber(weaponData.info.ammo) or 0
@@ -760,7 +694,6 @@ RegisterNetEvent('inventory:client:CheckWeapon', function(weaponName)
     currentWeapon = nil
 end)
 
--- This needs to be changed to do a raycast so items arent placed in walls
 RegisterNetEvent('inventory:client:AddDropItem', function(dropId, player, coords)
     print("^2[DEBUG] AddDropItem called - dropId:", dropId, "player:", player)
     print("^2[DEBUG] Coords:", coords)
@@ -779,15 +712,13 @@ RegisterNetEvent('inventory:client:AddDropItem', function(dropId, player, coords
         },
     }
     
-    -- Add to DropsNear and create the visual object
     DropsNear[dropId] = Drops[dropId]
     
-    -- Create the drop object on ground
+
     if Config and Config.UseItemDrop and Config.ItemDropObject then
         print("^3[DEBUG] Using Config.ItemDropObject")
         CreateItemDrop(dropId)
         
-        -- Add qb-target interaction if available
         if GetResourceState('qb-target') == 'started' then
             print("^2[DEBUG] Adding qb-target to drop")
             exports['qb-target']:AddTargetEntity(dropObject, {
@@ -813,16 +744,13 @@ end)
 RegisterNetEvent('inventory:client:RemoveDropItem', function(dropId)
     print("^3[DEBUG] RemoveDropItem called for dropId:", dropId)
     
-    -- Delete the physical object if it exists
     if DropsNear[dropId] and DropsNear[dropId].object then
         print("^2[DEBUG] Deleting drop object:", DropsNear[dropId].object)
         
-        -- Remove qb-target if it exists
         if GetResourceState('qb-target') == 'started' then
             exports['qb-target']:RemoveTargetEntity(DropsNear[dropId].object)
         end
         
-        -- Delete the object
         DeleteEntity(DropsNear[dropId].object)
         DropsNear[dropId] = nil
         print("^2[DEBUG] Drop object deleted")
@@ -863,10 +791,6 @@ RegisterNetEvent('inventory:client:craftTarget',function()
     TriggerServerEvent("inventory:server:OpenInventory", "crafting", math.random(1, 99), crafting)
 end)
 
---#endregion Events
-
---#region Commands
-
 RegisterCommand('closeinv', function()
     closeInventory()
 end, false)
@@ -883,7 +807,7 @@ RegisterCommand('inventory', function()
             local VendingMachine = nil
             if not Config.UseTarget then VendingMachine = GetClosestVending() end
 
-            if IsPedInAnyVehicle(ped, false) then -- Is Player In Vehicle
+            if IsPedInAnyVehicle(ped, false) then 
                 local vehicle = GetVehiclePedIsIn(ped, false)
                 CurrentGlovebox = QBCore.Functions.GetPlate(vehicle)
                 curVeh = vehicle
@@ -914,7 +838,7 @@ RegisterCommand('inventory', function()
                 end
             end
 
-            if CurrentVehicle then -- Trunk
+            if CurrentVehicle then 
                 local vehicleClass = GetVehicleClass(curVeh)
                 local maxweight
                 local slots
@@ -1014,10 +938,6 @@ for i = 1, 5 do
     RegisterKeyMapping('slot' .. i, Lang:t("inf_mapping.use_item") .. i, 'keyboard', i)
 end
 
---#endregion Commands
-
---#region NUI
-
 RegisterNUICallback('RobMoney', function(data, cb)
     TriggerServerEvent("police:server:RobPlayer", data.TargetId)
     cb('ok')
@@ -1089,7 +1009,6 @@ RegisterNUICallback("CloseInventory", function(_, cb)
     elseif CurrentStash ~= nil then
         TriggerServerEvent("inventory:server:SaveInventory", "stash", CurrentStash)
         CurrentStash = nil
-        -- Play close animation for stash
         closeAnim()
     else
         TriggerServerEvent("inventory:server:SaveInventory", "drop", CurrentDrop)
@@ -1099,7 +1018,6 @@ RegisterNUICallback("CloseInventory", function(_, cb)
     TriggerScreenblurFadeOut(1000)
     SetNuiFocus(false, false)
     inInventory = false
-    -- Play close animation for personal inventory
     if CurrentVehicle == nil and CurrentGlovebox == nil then
         closeAnim()
     end
@@ -1133,10 +1051,10 @@ RegisterNUICallback('combineWithAnim', function(data, cb)
         animDict = aDict,
         anim = aLib,
         flags = 16,
-    }, {}, {}, function() -- Done
+    }, {}, {}, function()
         StopAnimTask(ped, aDict, aLib, 1.0)
         TriggerServerEvent('inventory:server:combineItem', combineData.reward, data.requiredItem, data.usedItem)
-    end, function() -- Cancel
+    end, function()
         StopAnimTask(ped, aDict, aLib, 1.0)
         QBCore.Functions.Notify(Lang:t("notify.failed"), "error")
     end)
@@ -1159,7 +1077,6 @@ RegisterNUICallback("PlayDropFail", function(_, cb)
 end)
 
 RegisterNUICallback("GiveItem", function(data, cb)
-    -- print(data.item.name, data.amount, data.item.slot)
     QBCore.Functions.TriggerCallback('qb-vehiclekeys:server:GetClosestPlayer', function(ClosestPlayer)
         if #ClosestPlayer > 0 then 
             local menu = {}
@@ -1211,7 +1128,6 @@ RegisterNetEvent('inventory:client:GiveItemRemoveWeapon',function()
     currentWeapon = nil
 end)
 
---#endregion Threads
 RegisterNetEvent('inventory:client:OpenTrash', function()
     local trashid = ""..math.random(1000, 9999)..""..math.random(1000, 9999)..""..math.random(1000, 9999)..""
     TriggerServerEvent("inventory:server:OpenInventory", "stash", "Trash"..trashid, {
@@ -1221,11 +1137,8 @@ RegisterNetEvent('inventory:client:OpenTrash', function()
     TriggerEvent("inventory:client:SetCurrentStash", "Trash"..trashid)
 end)
 
--- Bin Inventory System
 RegisterNUICallback('OpenBinInventory', function(data, cb)
     print("^2[DEBUG CLIENT] OpenBinInventory NUI callback triggered")
-    
-    -- Respond to callback immediately
     cb('ok')
     
     local playerCitizenId = QBCore.Functions.GetPlayerData().citizenid
@@ -1234,8 +1147,8 @@ RegisterNUICallback('OpenBinInventory', function(data, cb)
     print("^2[DEBUG CLIENT] Creating bin ID:", binId)
     
     TriggerServerEvent("inventory:server:OpenInventory", "stash", binId, {
-        maxweight = 500000,  -- 500kg max weight
-        slots = 36,          -- 36 slots (removed 14)
+        maxweight = 500000,
+        slots = 36,
     })
     TriggerEvent("inventory:client:SetCurrentStash", binId)
 end)
@@ -1289,11 +1202,8 @@ CreateThread(function()
     })
 end)
 
---#region Vending Machines
-
 CreateThread(function()
     if Config.UseTarget then
-        -- Cola Vending Machine (prop_vend_soda_01)
         exports.interact:AddModelInteraction({
             model = 'prop_vend_soda_01',
             offset = vec3(0.0, 0.0, 0.0),
@@ -1322,8 +1232,6 @@ CreateThread(function()
                 },
             }
         })
-
-        -- Sprite Vending Machine (prop_vend_soda_02)
         exports.interact:AddModelInteraction({
             model = 'prop_vend_soda_02',
             offset = vec3(0.0, 0.0, 0.0),
@@ -1352,8 +1260,6 @@ CreateThread(function()
                 },
             }
         })
-
-        -- Water Vending Machine (prop_vend_water_01)
         exports.interact:AddModelInteraction({
             model = 'prop_vend_water_01',
             offset = vec3(0.0, 0.0, 1.0),
@@ -1382,8 +1288,6 @@ CreateThread(function()
                 },
             }
         })
-
-        -- Water Cooler (prop_watercooler_dark)
         exports.interact:AddModelInteraction({
             model = 'prop_watercooler_dark',
             offset = vec3(0.0, 0.0, 1.0),
@@ -1412,8 +1316,6 @@ CreateThread(function()
                 },
             }
         })
-
-        -- Snack Vending Machine (prop_vend_snak_01)
         exports.interact:AddModelInteraction({
             model = 'prop_vend_snak_01',
             offset = vec3(0.0, 0.0, 0.0),
@@ -1442,8 +1344,6 @@ CreateThread(function()
                 },
             }
         })
-
-        -- Coffee Vending Machine (prop_vend_coffe_01)
         exports.interact:AddModelInteraction({
             model = 'prop_vend_coffe_01',
             offset = vec3(0.0, 0.0, 1.0),
@@ -1474,10 +1374,6 @@ CreateThread(function()
         })
     end
 end)
-
---#endregion Vending Machines
-
---#region Custom Location Vending Machines (DrFx Edit)
 
 local Bean = {
     [1] = vector3(433.15933227539, -985.54669189453, 36.023380279541)
@@ -1606,5 +1502,3 @@ CreateThread(function()
         })
     end
 end)
-
---#endregion Custom Location Vending Machines
