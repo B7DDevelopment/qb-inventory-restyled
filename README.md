@@ -1,3 +1,7 @@
+<img width="747" height="1035" alt="eebea41cb2dbe292e3a892bc9783c5461b33e711" src="https://github.com/user-attachments/assets/a2a32923-3154-475b-98e7-13d3e15a1b04" />
+<img width="847" height="722" alt="a5bafaa8da935f1d86fa454fc914a117bb466dde" src="https://github.com/user-attachments/assets/129a9e5b-cea3-46cd-a411-5e136e1a70ae" />
+<img width="682" height="902" alt="f63c5553f6d21f3a41d3abb887e5fa16019b433b" src="https://github.com/user-attachments/assets/a9920123-412b-4de5-bfd2-62c41377989e" />
+
 # OL Inspired Inventory
 
 **`Overview`
@@ -25,5 +29,6 @@ Compact Collapsible Layout — Inventory sits centered on the left side of the s
 `Player Info Bar`  — A slim bar below the header shows your citizen ID, name, job, and cash balance with subtle icon separators. Everything at a glance without taking up screen space.
 
 `Search` — Click the search icon to reveal an inline search bar that filters your inventory slots in real-time by item name.**
+
 
 **-#  Copyright 2026 © Vortex LTD .**
